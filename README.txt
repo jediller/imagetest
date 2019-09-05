@@ -50,4 +50,7 @@ gcc -O2 -o player player.c -lmpg123 -lao
 g++ -O2 -o player player.c -lmpg123 -lao
 probably needs: sudo apt-get install mpg123
 
+dotest - added because I got tired of looking for way to do same function,
+in the cpp code. Ultimately it fits better with what I am trying to develop
+
 Good Luck
