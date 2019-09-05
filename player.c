@@ -1,3 +1,5 @@
+// https://hzqtc.github.io/2012/05/play-mp3-with-libmpg123-and-libao.html
+// Johnny Huang of the URL above is where most of the code in player.c came from
 #include <ao/ao.h>
 #include <mpg123.h>
 
