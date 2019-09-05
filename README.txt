@@ -42,4 +42,10 @@ One final tip, some of these errors seemed to generate extra cpp, hpp or
 other files in the local directory. Remove these. I suspect, they will 
 be reflagged as errors, even if one fixes the source correctly.
 
+Added player.c note to self, add credits
+player is to play MP3 sound clips, pretty sure it will play other formats as well
+gcc -O2 -o player player.c -lmpg123 -lao
+g++ -O2 -o player player.c -lmpg123 -lao
+probably needs: sudo apt-get install mpg123
+
 Good Luck
