@@ -43,6 +43,8 @@ other files in the local directory. Remove these. I suspect, they will
 be reflagged as errors, even if one fixes the source correctly.
 
 Added player.c note to self, add credits
+https://hzqtc.github.io/2012/05/play-mp3-with-libmpg123-and-libao.html
+Johnny Huang of the URL above is where most of the code in player.c came from
 player is to play MP3 sound clips, pretty sure it will play other formats as well
 gcc -O2 -o player player.c -lmpg123 -lao
 g++ -O2 -o player player.c -lmpg123 -lao
