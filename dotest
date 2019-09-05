@@ -1,0 +1,6 @@
+#!/bin/bash
+./imagetest &
+pid=$!
+
+sleep 5
+kill -9 $pid
