@@ -53,4 +53,9 @@ probably needs: sudo apt-get install mpg123
 dotest - added because I got tired of looking for way to do same function,
 in the cpp code. Ultimately it fits better with what I am trying to develop
 
+dotest6 - stopped using player, and opted to use play which I did not build. 
+It either came with ubuntu 19 or I installed it later. Also means I have to use
+wav files. Also Qt5 is not needed to render the image. I solved a multi image
+problem by switching over to java. Seems to work really well so far.
+
 Good Luck
