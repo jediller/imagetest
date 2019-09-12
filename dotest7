@@ -1,0 +1,215 @@
+#!/bin/bash
+wheel='/home/john/wheelocks/vocab/audio'
+trap 'echo -ne "\033]0;CrazyDays\007"' DEBUG
+declare -A chapter
+current="one"
+chapter=( [1]="one" [2]="two" [3]="three" [4]="four" [5]="five"
+  [6]="six" [7]="seven" [8]="eight" [9]="nine" [10]="ten"
+  [11]="eleven" [12]="twelve" [13]="thirteen" [14]="fourteen" [15]="fifteen"
+  [16]="sixteen" [17]="seventeen" [18]="eighteen" [19]="nineteen" [20]="twenty"
+  [21]="twentyone" [22]="twentytwo" [23]="twentythree" [24]="twentyfour" [25]="twentyfive"
+  [26]="twentysix" [27]="twentyseven" [28]="twentyeight" [29]="twentynine" [30]="thirty"
+  [31]="thirtyone" [32]="thirtytwo" [33]="thirtythree" [34]="thirtyfour" [35]="thirtyfive"
+  [36]="thirtysix" [37]="thirtyseven" [38]="thirtyeight" [39]="thirtynine" [40]="forty" )
+
+switch_chapter() {
+   if [ "$1" == "" ]; then echo "chapter not specified";
+   elif [ "${chapter[$1]}" == "" ]; then echo chapter $1 is not found;
+   else current=${chapter[$1]}; fi
+}
+
+showit() {
+   if [ "$1" == "wav" ]; then
+      directory=$wheel'/'$current'/vocabulary'
+      cd $directory
+      ls *.$1
+      hide=`cd -`
+   elif [ "$1" == "png" ]; then
+      directory=$wheel'/'$current'/vocabulary'
+      cd $directory
+      ls *.$1
+      hide=`cd -`
+   else
+      echo show is only supported for wav or png, and not $1
+   fi
+}
+ 
+playit() {
+   directory=$wheel'/'$current'/vocabulary'
+   cd $directory
+   if [ ! -f "$1.wav" ]; then
+      echo file $1.wav is not found in chapter $current
+   else
+      play $1.wav 2>/dev/null
+   fi
+   hide=`cd -`
+}
+ 
+displayit() {
+   directory=$wheel'/'$current'/vocabulary'
+   cd $directory 2>&1 >/dev/null
+   if [ ! -f $1.png ]; then
+      echo file $1.png is not found in chapter $current
+   else
+      args=`pwd`
+      for x in $*; do if [ ! -f $x'.png' ]; then break; fi; args=$args' '$x'.png'; done
+      ShowPNG $args &
+      sleep 2
+      pid=`cat pid.txt | tr -d '\n'`
+      wmctrl -a CrazyDays
+      sleep 3
+      kill $pid
+   fi
+   hide=`cd -`
+}
+ 
+doboth() {
+   directory=$wheel'/'$current'/vocabulary'
+   png=$1'0.png'
+   cd $directory 2>&1 >/dev/null
+   if [ ! -f $png ]; then
+      echo file $png is not found in chapter $current
+   elif [ ! -f "$1.wav" ]; then
+      echo file $1.wav is not found in chapter $current
+   else
+      args=`pwd`
+      for x in {0..9}; do png=$1''$x'.png'; if [ ! -f $png ]; then break; fi; args=$args' '$png; done
+      ShowPNG $args &
+      play $1.wav 2>/dev/null
+      sleep 2
+      pid=`cat pid.txt | tr -d '\n'`
+      wmctrl -a CrazyDays
+      sleep 3
+      kill $pid
+   fi
+   hide=`cd -`
+}
+ 
+dorlatin() {
+   directory=$wheel'/'$current'/vocabulary'
+   cd $directory 2>&1 >/dev/null
+   count=0
+   for l in `ls -1 *.wav`; do
+       w=`echo $l | sed 's/.wav//'`
+       if [ -f $w'.png' ] && [ -f $w'0.png' ]; then
+          ((count++))
+       fi
+   done
+   if (( count == 0 )); then return ""; fi 
+   ((choice=RANDOM % count))
+   count=0
+   for l in `ls -1 *.wav`; do
+       w=`echo $l | sed 's/.wav//'`
+       if [ -f $w'.png' ] && [ -f $w'0.png' ]; then
+          if (( count == choice )); then
+             args=`pwd`
+             for x in {0..9}; do png=$w''$x'.png'; if [ ! -f $png ]; then break; fi; args=$args' '$png; done
+             ShowPNG $args &
+             play $w.wav 2>/dev/null 
+             sleep 1
+             pid=`cat pid.txt | tr -d '\n'`
+             kill $pid
+             wmctrl -a CrazyDays
+             read -p "guess: " guess nextinput
+             args=`pwd`
+             ShowPNG $args $w.png &
+             sleep 1
+             pid=`cat pid.txt | tr -d '\n'`
+             sleep 3
+             kill $pid 
+             wmctrl -a CrazyDays
+          fi
+          ((count++))
+       fi
+   done
+}
+
+dolatin() {
+   directory=$wheel'/'$current'/vocabulary'
+   cd $directory 2>&1 >/dev/null
+   if [ -f $1'.png' ] && [ -f $1'0.png' ] && [ -f $1'.wav' ]; then
+      args=`pwd`
+      for x in {0..9}; do png=$1''$x'.png'; if [ ! -f $png ]; then break; fi; args=$args' '$png; done
+      ShowPNG $args &
+      play $1.wav 2>/dev/null 
+      sleep 1
+      pid=`cat pid.txt | tr -d '\n'`
+      kill $pid
+      wmctrl -a CrazyDays
+      read -p "guess: " guess 
+      args=`pwd`
+      ShowPNG $args $1.png &
+      sleep 1
+      pid=`cat pid.txt | tr -d '\n'`
+      sleep 3
+      kill $pid 
+      wmctrl -a CrazyDays
+   else
+      echo sorry $1 is not in chapter $current
+   fi
+}
+
+doboth2() {
+   directory=$wheel'/'$current'/vocabulary'
+   png=$1'0.png'
+   cd $directory
+   if [ ! -f "$1.wav" ]; then
+      echo file $1.wav is not found in chapter $current
+   elif [ ! -f "$png" ]; then
+      echo file $png is not found in chapter $current
+   else
+      at=0
+      while [ -f "$png" ]; do
+        nohup imagetest $png >/dev/null 2>&1 & 
+        ((at++))
+        png=$1''$at'.png'
+      done
+      play $1.wav 2>/dev/null
+      wmctrl -a CrazyDays
+      sleep 2
+      while (( `wmctrl -l | grep -c " imagetest"` > 0 )); do
+         wmctrl -c imagetest
+         sleep 1
+      done
+   fi
+   hide=`cd -`
+}
+ 
+looplatin() {
+   guess='go'
+   while true; do
+     dorlatin;
+     if  [ "$guess" == "x" ];  then break; fi
+   done
+}
+
+do_command() {
+   read -p "command: " cmd val
+   if [ "$cmd" == "c" ]; then switch_chapter $val; 
+   elif [ "$cmd" == "s" ]; then showit $val;
+   elif [ "$cmd" == "p" ]; then playit $val;
+   elif [ "$cmd" == "d" ]; then displayit $val;
+   elif [ "$cmd" == "b" ]; then doboth $val;
+   elif [ "$cmd" == "l" ]; then dolatin $val;
+   elif [ "$cmd" == "r" ]; then dorlatin;
+   elif [ "$cmd" == "m" ]; then looplatin;
+   elif [ "$cmd" == "x" ]; then exit; 
+   else
+      echo command $cmd $val is not supported yet
+      echo support commands':'
+      echo -e "  c to switch chapter"
+      echo -e "  s to show specified files in chapter"
+      echo -e "  p to play specified wav file in chapter"
+      echo -e "  d to display specified png file in chapter"
+      echo -e "  b to display and play in chapter"
+      echo -e "  l vocab - to test the latin vocab"
+      echo -e "  r - to test the random latin vocab from chapter"
+      echo -e "  m - to test the random latin vocab from chapter, in loop"
+      echo -e "  x to exit program"
+   fi
+} 
+
+while true
+do
+   do_command
+done
